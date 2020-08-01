@@ -1,0 +1,44 @@
+.App {
+  text-align: center;
+}
+
+.leaflet-container {
+  margin-left: 12%;
+  width: 89.5%;
+  height: 70vh;
+}
+
+.sidebar_name {
+	color: black;
+}
+
+.sidebar {
+	width: 85%;
+}
+
+.negwidth {
+	height: -40px;
+}
+
+.container {
+	background: rgba(0,0,0,0.6);
+}
+
+.btnColor {
+	background-color: grey;
+}
+
+.circular--landscape {
+  display: inline-block;
+  position: relative;
+  width: 200px;
+  height: 175px;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.circular--landscape img {
+  width: auto;
+  height: 100%;
+  margin-left: -50px;
+}
