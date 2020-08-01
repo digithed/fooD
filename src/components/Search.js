@@ -11,7 +11,7 @@ var myLong0 = 0;
 var map = Map;
 class Search extends React.Component<{},{ viewport: Viewport },> {
 	state = {
-    'apiKey': 'BDKJluIkcQa-Lwn_Ye9BfW_m8ajO-agWP-WXdpyAMJ3O6iAhangiPCn8Sjch8MF2mikafe4gxR1xxM0h69cCAYBuFlTn0tOvHc2vpiogz3TAHkaRGDeZVRXf46i9XnYx',
+    'apiKey': 'KEY',
     'active': null,
     'isActive': false,
     'isgood': false,
