@@ -38,7 +38,7 @@ app.use(function(req, res, next) {
       limit: req.body.limit,
      },
      headers: {
-    Authorization: 'Bearer ' + 'BDKJluIkcQa-Lwn_Ye9BfW_m8ajO-agWP-WXdpyAMJ3O6iAhangiPCn8Sjch8MF2mikafe4gxR1xxM0h69cCAYBuFlTn0tOvHc2vpiogz3TAHkaRGDeZVRXf46i9XnYx'
+    Authorization: 'Bearer ' + 'KEY'
  }
     })
     .then( res => {
@@ -77,57 +77,7 @@ app.use(function(req, res, next) {
 
 });
 
-//  app.post("/apiCallFeed", (req, response) => {
 
-//   axios.get(`https://api.yelp.com/v3/businesses/${req.body.id}`, {
-//      headers: {
-//     Authorization: 'Bearer ' + 'BDKJluIkcQa-Lwn_Ye9BfW_m8ajO-agWP-WXdpyAMJ3O6iAhangiPCn8Sjch8MF2mikafe4gxR1xxM0h69cCAYBuFlTn0tOvHc2vpiogz3TAHkaRGDeZVRXf46i9XnYx'
-//  }
-//     })
-//     .then( res => {
-//       console.log(res.data.coordinates.latitude);
-//       lat = res.data.coordinates.latitude;
-//       long = res.data.coordinates.longitude;
-
-//        var usersRef = ref.child(`users/${currentSession}`);
-//        var viewport = {center: [lat,long], zoom:14}
-
-
-//        var json = {data: res.data, isgood: true, viewport:{center: [lat,long], zoom:14}, isloading:false, lat: lat, long: long};
-      
-   
-  
-//           usersRef.update({
-//             'friend_name': req.body.name,
-//             'viewport': viewport
-//           })
-
-//           response.send(json);
-
-       
-
-   
-    
-      
-    
-//     })
-//     .catch( err => {
-//       console.log(err);
-//     })
-
-
-// });
-
-
-// app.get("/getViewport", (req,res) => {
-//   var usersRef = ref.child(`users/${currentSession}`);
-//   usersRef.on('value', (snapshot) => {
-//     console.log(snapshot.val());
-//     res.send({viewport: snapshot.val().viewport});
-//   });
-  
-
-// })
 
 
  app.post("/createUser", (req, res) => {
@@ -142,13 +92,6 @@ app.use(function(req, res, next) {
     ids: [''],
  	});
 
-  // usersRef.on('value', (snapshot) => {
-  //   snapshot.forEach( (child) => {
-  //     if(child.val().email == req.body.email && child.val().pass == req.body.pass){
-  //       currentSession = child.key;
-  //     }
-  //   })
-  // })
 
   res.send({good: 'good job'});
 
