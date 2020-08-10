@@ -39,7 +39,7 @@ app.use(function(req, res, next) {
       limit: req.body.limit,
      },
      headers: {
-    Authorization: 'Bearer ' + 'BDKJluIkcQa-Lwn_Ye9BfW_m8ajO-agWP-WXdpyAMJ3O6iAhangiPCn8Sjch8MF2mikafe4gxR1xxM0h69cCAYBuFlTn0tOvHc2vpiogz3TAHkaRGDeZVRXf46i9XnYx'
+    Authorization: 'Bearer ' + 'INSERT YELP FUSION API KEY HERE'
  }
     })
     .then( res => {
