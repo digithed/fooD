@@ -11,9 +11,22 @@ To run the front-end React server run `yarn start` while in the root of the clon
 
 ## Features
 
-### Search for restaurants using Yelp's Fusion API
+### Search for restaurants by Location using Yelp's Fusion API
 
 ![](https://github.com/digithed/fooD/blob/master/media/r1.gif)
+
+
+### Search restaurants by map area
+
+![](https://github.com/digithed/fooD/blob/master/media/r2.gif)
+
+### Reset the map and search based on your location
+
+![](https://github.com/digithed/fooD/blob/master/media/r3.gif)
+
+### Check out your friend feed and look at new restaurants your friends have liked
+
+![](https://github.com/digithed/fooD/blob/master/media/r4.gif)
 
 
 
