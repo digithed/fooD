@@ -13,7 +13,7 @@ To run the front-end React server run `yarn start` while in the root of the clon
 
 ### Search for restaurants using Yelp's Fusion API
 
-![Alt Text] (https://github.com/digithed/fooD/tree/master/media/r1.gif)
+![Alt Text] (https://giphy.com/gifs/dUYggpdp3DXzYpTQ2H)
 
 
 
