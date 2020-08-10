@@ -1,5 +1,5 @@
 # fooD
-Food + social media react app
+Restaurant + social media react app
 
 ## How to build and run the app
 
