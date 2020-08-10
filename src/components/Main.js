@@ -79,9 +79,6 @@ componentDidMount(){
     </Dropdown.Toggle>
     </Button>
     <Dropdown.Menu>
-    <Dropdown.Item href='/main'>Map</Dropdown.Item>
-    <Dropdown.Item href='/friends'>Friends</Dropdown.Item>
-    <br></br>
     <Dropdown.Item href='/login'>Logout</Dropdown.Item>
     </Dropdown.Menu>
     </Dropdown>
@@ -98,11 +95,7 @@ componentDidMount(){
 
     {this.state.isloaded && (
       <div>
-      <div style={{'float': 'left', 'padding-left': '70px', 'padding-top': '20px', 'padding-bottom': '10px' }} align='left'>
-      <img style={{'display': 'inline-block'}} className='circular--landscape' src='./pizza.jpeg' />
-      <h2 style={{'padding-left': '20px','display': 'inline-block'}} className="sidebar_name">Hello, {this.props.name}</h2>
-      <h2 style={{'padding-left': '20px','display': 'inline-block'}}>Rank: Newbie</h2>
-      </div>
+      
       <SubMain name={this.state.name} user_loc={[this.state.user_lat, this.state.user_long]} userFind={true}
       reset={this.reset} />
       </div>

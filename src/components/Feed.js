@@ -14,6 +14,7 @@ class Feed extends React.Component {
 	 componentDidMount(){
 	 	axios.get('http://localhost:3001/getFriends')
 	 	.then( (res) => {
+	 		console.log(res.data);
 	 		this.setState({friends: res.data, keys: Object.keys(res.data), ok: true});
 	 	})
 	 	.catch( (err) => {
@@ -22,7 +23,6 @@ class Feed extends React.Component {
 	 }
 
 	render(){
-		//const friends = {'Alex': ['Bricco', 'Strega'], 'Emilio': ['Tbaar-brookline', 'Mikes pastry']}
 		
 	return (
 
@@ -34,16 +34,17 @@ class Feed extends React.Component {
 			<Grid columns={1}>
       		<Grid.Column>
       	
-     
-  			<p>{item} updated his restaurant list</p>
+			<div style={{'borderBottom': '2px solid grey'}}>
+  			<p>{item} updated their restaurant list</p>
   			<div>
 			{this.state.friends[item].map( (place) => {
 				return(
-				<Menu.Item as='a' onClick={this.props.searchFriendChoice.bind(this, place)}>
-				{place}
+				<Menu.Item as='a' onClick={this.props.searchFriendChoice.bind(this, place.name)}>
+				{place.name}
 				</Menu.Item>
 				)
 			})}
+			</div>
 			</div>
 	
 			</Grid.Column>

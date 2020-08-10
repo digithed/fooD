@@ -10,6 +10,7 @@ import Login from './components/Login.js'
 import Main from './components/Main.js'
 import CreateAccount from './components/CreateAccount.js'
 
+
 class Routes extends React.Component{
 
 	render(){
@@ -19,6 +20,7 @@ class Routes extends React.Component{
                 <Route path="/login" component={Login} />
                 <Route path="/main" component={Main} />
                 <Route path="/createAccount" component={CreateAccount} />
+                
             </Switch>
 
 

@@ -4,6 +4,7 @@ const app = express();
 const admin = require('firebase-admin');
 const serviceAccount = require("./serviceAccountKey.json");
 
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://quickdeliver-d9180.firebaseio.com"
@@ -38,16 +39,17 @@ app.use(function(req, res, next) {
       limit: req.body.limit,
      },
      headers: {
-    Authorization: 'Bearer ' + 'KEY'
+    Authorization: 'Bearer ' + 'BDKJluIkcQa-Lwn_Ye9BfW_m8ajO-agWP-WXdpyAMJ3O6iAhangiPCn8Sjch8MF2mikafe4gxR1xxM0h69cCAYBuFlTn0tOvHc2vpiogz3TAHkaRGDeZVRXf46i9XnYx'
  }
     })
     .then( res => {
-       if(lat == null && long == null){
       
+      if(lat == null && long == null){
   		lat = res.data.businesses[0].coordinates.latitude;
   		long = res.data.businesses[0].coordinates.longitude;
+    }
 
-  }
+
       
 
       if(req.body.limit > 1){
@@ -61,10 +63,10 @@ app.use(function(req, res, next) {
       })
     }
 
-       var json = {data: res.data, isgood: true, viewport:{center: [lat,long], zoom:15}, isloading:false};
+       
+    var json = {data: res.data, isgood: true, viewport:{center: [lat,long], zoom:15}, isloading:false};
      
-   	   response.send(json);
-    
+      return response.send(json);
       
     
     })
@@ -73,11 +75,7 @@ app.use(function(req, res, next) {
     })
 
 
-
-
 });
-
-
 
 
  app.post("/createUser", (req, res) => {
@@ -86,116 +84,104 @@ app.use(function(req, res, next) {
  	usersRef.push({
  		name: req.body.name,
  		email: req.body.email,
- 		pass: req.body.pass,
- 		history: ["liked Mike's Pastry", "Visited Yotel Seaport"],
+    pass: req.body.pass,
+    gender: req.body.gender,
     friends: friends,
     ids: [''],
  	});
 
-
-  res.send({good: 'good job'});
+  return res.send({good: 'good job'});
 
  	});
 
 
-app.post("/updateLike", (req, res, err) => {
-  var usersRef = ref.child("users");
-  var innerRef;
+app.post("/updateLike", (req, res) => {
+  var innerRef = ref.child(`/users/${currentSession}`);
   var go = false;
   var reference;
   var mydata;
-  usersRef.on('value', (snapshot) => {
-    snapshot.forEach( (child) => {
 
+
+  innerRef.once('value', (snapshot) => {
+    if(snapshot.child("ids").exists()){
       
-    if(child.val().name == req.body.name){
-      innerRef = ref.child(`/users/${child.key}`);
-      reference = child.val()
-      go = true;
-    }
-        
-    
-        
-    })
-    
-  })
-
-if(go == true){
-  if(reference.ids != null){
-  reference.ids.push(req.body.id);
-  mydata = reference.ids;
-}
-else{
-  mydata = [req.body.id];
-  }
-  innerRef.update({
+      reference = snapshot.val();
+      var obj = {timestamp: req.body.timestamp, name: req.body.id};
+      reference.ids.push(obj);
+      mydata = reference.ids;
+      innerRef.update({
         ids: mydata
-      })
-}
+      });
+      
+   }
 
+   else if(!snapshot.child("ids").exists()){
+    mydata = [req.body.id];
+      var obj = {timestamp: req.body.timestamp, name: req.body.id};
+      var reference = [];
+      reference.push(obj);
+      mydata = reference;
+      
+      innerRef.update({
+        ids: mydata
+      });
+      
+   }
+   
+});
 
-})
+});
 
  app.post("/login", (req, res) => {
 
- 	var usersRef = ref.child("users");
- 	var s;
- 	usersRef.on('value', (snapshot) => {
+   var usersRef = ref.child("users");
+   var success = false;
+   var name;
+ 	usersRef.once('value', (snapshot) => {
  		snapshot.forEach( (child) => {
  			if(child.val().email == req.body.email && child.val().pass == req.body.pass){
- 				console.log("found");
- 				s = true
  				currentSession = child.key;
- 				res.send({success: true, name: child.val().name});
- 			}
+         success = true;
+         name = child.val().name;
+       }
+       
 
- 		})
- 				if(!s){
- 					res.send({success: false});
- 				}
-
-
- })
+     });
 
 
+     res.send({success: success, name: name});
+ });     
 
- 	 
+
 
  })
 
  app.get("/history", (req, res) => {
- 	var usersRef = ref.child("users" + `/${currentSession}`);
-  console.log(currentSession);
- 	usersRef.on('value', (snapshot) => {
+   var usersRef = ref.child("users" + `/${currentSession}`);
+   var obj = {};
+ 	usersRef.once('value', (snapshot) => {
     if(snapshot.val() != null){
- 		res.send({history: snapshot.val().history});
+      obj = {history: snapshot.val().ids};
   }
-  else{
-    res.send({history: ['None']});
-  }
- 	})
+    res.send(obj);
+    return;
+   })
+   
+   console.log('history');
+   
  })
 
  app.get("/getFriends", (req, res) => {
   var usersRef = ref.child("users" + `/${currentSession}`);
   var data;
-  var final = {}
+  var final = {};
 
-  
-  usersRef.on('value', (snapshot) => {
-    if(snapshot.val() != null){
-    data = snapshot.val().friends
-  }
-  else{
-    data = null;
-  }
-
-  })
-
-  if(data != null){
-
-  var newRef = ref.child("users");
-  newRef.on('value', (snapshot) => {
+  usersRef.once('value', (snapshot) => {
+    if(snapshot.child('friends').exists()){
+      
+    data = snapshot.val().friends;
+    var newRef = ref.child("users");
+  newRef.once('value', (snapshot) => {
     snapshot.forEach( (child) => {
     var i = 0;
     for(i = 0; i < data.length; i++){
@@ -205,24 +191,121 @@ else{
     }
   }
 })
-  })}
-  else{
-    final = null;
-  }
   res.send(final);
+  });
+  
+}
+
+  else{
+   final = null;
+   res.send(final);
+  }
+
+  
+
+  });
+
+  
+
 });
 
 
 app.get("/getCurrentUser", (req, res) => {
   var userRef = ref.child("users");
 
-  userRef.on('value', (snapshot) => {
+  userRef.once('value', (snapshot) => {
     snapshot.forEach( (child) => {
       if(child.key == currentSession){
-        res.send({name: child.val().name, friends: child.val().friends});
+        return res.send({name: child.val().name, friends: child.val().friends});
       }
     })
   })
+});
+
+
+app.post("/addFriend", (req, res) => {
+  var usersRef = ref.child("users");
+  usersRef.once('value', (snapshot) => {
+    snapshot.forEach( (child) => {
+      if(child.val().email == req.body.email){
+        var newRef = ref.child("users" + `/${child.key}`);
+        newRef.update({
+          friend_requests_in: [req.body.friend]
+        })
+        res.send({good: 'good'});
+      }
+    });
+  });
+
+})
+
+app.post("/getFriendRequest", (req, res) => {
+  var usersRef = ref.child("users");
+  usersRef.once('value', (snapshot) => {
+    snapshot.forEach( (child) => {
+      if(child.val().name == req.body.name){
+        var data = child.val().friend_requests_in;
+        res.send({friendRequests: data});
+      }
+    })
+  })
+})
+
+app.post("/acceptRequest", (req, res) => {
+  console.log(req.body.friendName);
+  var usersRef = ref.child("users");
+  usersRef.once('value', (snapshot) => {
+    snapshot.forEach( (child) => {
+      if(child.val().name == req.body.name){
+        var reference = child.val();
+        var newRef = ref.child("users" + `/${child.key}`);
+
+        if(child.child('friends').exists()){
+          console.log('true friends exist');
+        reference.friends.push(req.body.friendName);
+        var mydata = reference.friends;
+        var request = reference.friend_requests_in;
+        request.splice(request.indexOf(req.body.friendName));
+        }
+
+      else{
+        console.log('friends do not exist');
+        var request = reference.friend_requests_in;
+        request.splice(request.indexOf(req.body.friendName));
+        var mydata = [req.body.friendName];
+
+      }
+      newRef.update({
+        friends: mydata,
+        friend_requests_in: request,
+      })
+    }
+      
+
+      if(child.val().name == req.body.friendName){
+        console.log('uuu');
+        var reference = child.val();
+        var newRef = ref.child("users" + `/${child.key}`);
+        if(child.child('friends').exists()){
+        reference.friends.push(req.body.name);
+        var mydata = reference.friends;
+        console.log(mydata);
+        }
+        else{
+          var mydata = [req.body.name];
+        }
+        newRef.update({
+          friends: mydata,
+        })
+        
+      }
+    });
+        
+
+        res.send({good: 'good'});
+      
+  });
+
 });
 
  app.listen(port, function() {

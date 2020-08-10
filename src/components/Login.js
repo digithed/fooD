@@ -64,14 +64,19 @@ setPass(e) {
     <label>Email address</label>&nbsp;
     <input type="text" value={this.state.email} onChange={this.setEmail.bind(this)} />
     </div>
-    <br></br>
     <div style={{'padding-right': '60px'}}>
     <label>Password</label>&nbsp;
     <input type="password" value={this.state.pass} onChange={this.setPass.bind(this)} />
     </div>
-    <br></br>
     <input type="submit" value="Login" />
     </form>
+    <br></br>
+    {this.state.success == false &&
+    <div>
+    <h3 style={{'color': 'red'}}>User not found! Try again or create account</h3>
+    </div>
+  }
+    <Link to="/createAccount">Create Account</Link>
     </div>
 }
     {this.state.success && 
@@ -94,14 +99,6 @@ setPass(e) {
     </Switch>
    
     </Router>
-
-  {this.state.success == false &&
-    <div>
-    <h2>User not found! Try again or create account</h2>
-    <Link to="/createAccount">Create Account</Link>
-    </div>
-  
-  }
      
 
 

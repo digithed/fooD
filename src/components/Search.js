@@ -4,14 +4,29 @@ import axios from 'axios';
 import Control from 'react-leaflet-control';
 import {Button, Icon, Menu} from 'semantic-ui-react';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
+import Timestamp from 'react-timestamp';
 
 
-var myLat0 = 0;
-var myLong0 = 0;
-var map = Map;
+
+
+
 class Search extends React.Component<{},{ viewport: Viewport },> {
+
+  constructor(props){
+    super(props);
+     this.updateViewport.bind(this);
+    this.set.bind(this);
+    this.Lat = 0;
+    this.Long = 0;
+    this.ready = false;
+   
+    
+  }
+
+
+   
+  
 	state = {
-    'apiKey': 'KEY',
     'active': null,
     'isActive': false,
     'isgood': false,
@@ -25,55 +40,22 @@ class Search extends React.Component<{},{ viewport: Viewport },> {
     'myLat': null,
     'myLong': null,
     'data': this.props.data,
-    'url': ''
+    'url': '',
+    postViewport: false,
+    ready: false,
 
-
-    
   }
   componentDidMount(){
   	this.setState({data: this.props.data, data2: this.props.data});
-    console.log(this.props.data);
   }
 
-
-
-  onGo(e){
-  	console.log(e.target.getCenter());
-  }
 
   updateViewport(e){
-  myLat0 = e.center[0];
-  myLong0 = e.center[1];
-
-}
-
-prepare(e){
-  e.preventDefault();
-  var send = {location: null, lat: myLat0, long: myLong0};
-  axios.post('http://localhost:3001/apiCall', send)
-  .then( (res) => {
-     var r = res.data;
-     if(this.props.food_type){
-      var f;
-    f = r.data.filter(biz => {
-    var i;
-    for(i=0; i < biz.categories.length; i++){
-      var item = biz.categories[i].title.toUpperCase()
-      if(item.includes(this.props.food_type.toUpperCase())){
-      return biz;
-    }
-    }
-  });
-    this.setState({data2: f, isgood: r.isgood, viewport: r.viewport, loading: r.isloading});
-  }
-  else{
-    this.setState({data: r.data, isgood: r.isgood, viewport: r.viewport, loading: r.isloading});
-  }
+    this.Lat = e.center[0];
+    this.Long = e.center[1];
+    this.ready = false;
     
-  })
-  .catch( (err) => {
-    console.log(err);
-  })
+
 }
 
 
@@ -83,37 +65,19 @@ copyLink(e){
   console.log(this.state.url);
 }
 
-//<Button align="right" onClick={this.copyLink.bind(this, b.url)}><i className="fa fa-copy"></i></Button>
-/*
+set(e){
+    var mLat = this.Lat;
+    var mLong = this.Long;
+    this.ready = true;
 
-{this.props.friendSearch && 
-       <Marker key={this.state.data.id}
-      position={[this.state.data.coordinates.latitude, this.state.data.coordinates.longitude]}
-       >
-       <Popup  maxWidth="200" maxHeight="200" onClick={this.setPopup}
-       position={[this.state.data.coordinates.latitude, this.state.data.coordinates.longitude]} >
-        <div>
-      <h2>{this.state.data.name}</h2>
-      <img src={this.state.data.image_url} height="150px" width="200px"/>
-      <p>Rating: {this.state.data.rating}</p>
-      <Button onClick={this.state.dpoints} name="like">Like</Button>
-      <ul>
-      {this.state.data.categories.map((i) => (
-      <li>{i.title}</li>
-  ))}
-      </ul>
-      <p><a href={this.state.data.url}>Yelp Page</a></p>
-      <p>Phone: <a href={"tel:" + this.state.data.phone}>{this.state.data.phone}</a></p> 
-      </div>
-      </Popup>
-        
+    this.setState({myLat: mLat , myLong: mLong}, (res) => {
+      if(res){
+        return;
+      }
+    });
+ 
   
-      </Marker>
-
-
-     }
-     */
-    
+}
 
 
 	render() {
@@ -122,6 +86,7 @@ copyLink(e){
 
     {this.props.isgood && (
     <Map
+    ref = "map"
     onViewportChanged={this.updateViewport.bind(this)}
     viewport = {this.props.viewport}
     useFlyTo={true}
@@ -132,10 +97,18 @@ copyLink(e){
     contributors'
     />
 
-    <Control position="topleft">
-    <button onClick={this.props.handleSearchArea.bind(this, myLat0, myLong0)}> Search Area</button>
-    <button>Reset and search near me</button>
+    <Control style={{'padding-bottom': '30px'}} position="topleft">
+    <div >
+    <Button size='small' style={{'display': 'inline-block'}} color='black' onClick={this.set.bind(this)}> Search Area</Button>
+    {this.ready && (
+      this.props.handleSearchArea(this.state.myLat, this.state.myLong)
+      
+      )}
+    <br></br>
+    <Button size='small' style={{'display': 'inline-block'}} color='black' onClick={this.props.reset.bind(this)}>Reset and search near me</Button>
+    </div>
     </Control>
+
 
     
         {this.props.food_type && this.state.data2.map((b) => (

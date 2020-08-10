@@ -28,11 +28,12 @@ import PlacesAutocomplete, {
   getLatLng,
 } from 'react-places-autocomplete';
 
+import Friends from './Friends.js';
+
 
 class SubMain extends React.Component {
 
 state = {
-    'apiKey': 'KEY',
     'active': null,
     'isActive': false,
     'loading': false,
@@ -53,7 +54,14 @@ state = {
 	 'term': null,
 	 'friendSearch': null,
 	 'userFriend': false,
-	 'name': null,
+   'name': null,
+   'friend': false,
+   'friendRequests': null,
+   'showNotif': false,
+   'history': null,
+   'setHistory': false,
+   'req_icon': 0,
+   'stop': false,
 	}
 
 
@@ -63,14 +71,27 @@ componentDidMount(){
 	
 	axios.post('http://localhost:3001/apiCall', send)
 	.then( (res) => {
-		var r = res.data
+		var r = res.data;
 		this.setState({data: r.data, data2: r.data, isgood: r.isgood, viewport: r.viewport,
-		 loading: r.isloading, lat: this.props.user_loc[0], long: this.props.user_loc[1]});
+     loading: r.isloading, lat: this.props.user_loc[0], long: this.props.user_loc[1]});
+     var data = {name: this.props.name};
+     axios.post("http://localhost:3001/getFriendRequest", data)
+     .then( (res) => {
+       console.log(res.data);
+       this.setState({req_icon: res.data.friendRequests.length});
+     })
+     .catch( (err) => {
+       console.log(err);
+     })
+
 	})
 	.catch( (err) => {
 		console.log(err);
-	})
+  })
+  
+ 
 }
+
 
 
 	
@@ -127,18 +148,20 @@ this.setState({food_type: e.target.value, food_filter:true, data2: my_data});
   	this.setState({visible: e});
   }
 
+
+  //Function to create timestamp after liking a restaurant and sending data to update history of likes
   dpoints(id){
-  	const send = {name: this.props.name, id: id};
-  	console.log(this.props.name);
+    const date = new Date().toDateString();
+  	const send = {name: this.props.name, id: id, timestamp: date};
   	axios.post('http://localhost:3001/updateLike', send)
   	.then( (res) => {
-  		console.log(res.data);
+  		this.setState({points: this.state.points + 1, setHistory: false});
   	})
-  	.catch( (err) => {
+  	.catch( (err) => { 
   		console.log(err);
   	})
 
-  	this.setState({points: this.state.points + 1});
+ 
   }
 
   showFeed(e){
@@ -150,13 +173,14 @@ this.setState({food_type: e.target.value, food_filter:true, data2: my_data});
   }
   }
 
-  searchFriendChoice(e, term2){
-  var send = {term: e, location: 'Boston, MA', lat: null, long: null, limit: 1};
+  searchFriendChoice(term){
+  var send = {term: term, location: 'Boston, MA', lat: null, long: null, limit: 1};
   axios.post('http://localhost:3001/apiCall', send)
   .then( (res) => {
     var r = res.data;
+    console.log(r);
       this.setState({data: r.data.businesses, data2: r.data.businesses, isgood: r.isgood, viewport: r.viewport,
-		 loading: r.isloading, lat: r.lat, long: r.long, userFriend: true});
+		 loading: r.isloading, userFriend: true});
     
     })
 
@@ -167,18 +191,102 @@ this.setState({food_type: e.target.value, food_filter:true, data2: my_data});
   
  
  handleSearchArea(lat, long){
+ 
   	var send = {term: null, location: null, lat: lat, long: long, limit: 10};
-  	
+
 	axios.post('http://localhost:3001/apiCall', send)
 	.then( (res) => {
 		var r = res.data;
 		console.log(r);
 		this.setState({data: r.data, data2: r.data, isgood: r.isgood, viewport: r.viewport,
-		 loading: r.isloading, lat: lat, long: long});
+		 loading: r.isloading});
 	})
 	.catch( (err) => {
 		console.log(err);
 	})
+  }
+
+  reset(e){
+
+  	var send = {term: null, location: null, lat: this.state.lat, long: this.state.long, limit: 20};
+	
+	axios.post('http://localhost:3001/apiCall', send)
+	.then( (res) => {
+		var r = res.data
+		console.log(res.data);
+		this.setState({data: r.data, data2: r.data, isgood: r.isgood, viewport: r.viewport,
+		 loading: r.isloading});
+	})
+	.catch( (err) => {
+		console.log(err);
+	})
+
+  }
+
+  updateViewport(e){
+  	this.setState({viewport: {center: e.center, zoom:15}});
+  }
+
+  addFriend(e){
+    if(!this.state.friend){
+      this.setState({friend: true});
+    }
+    else if(!this.state.stop){
+      this.setState({friend: false});
+    }
+  }
+
+
+
+  showNotif(e){
+   
+    var data = {name: this.props.name};
+    axios.post("http://localhost:3001/getFriendRequest", data)
+    .then( (res) => {
+      this.setState({friendRequest: res.data.friendRequests});
+      if(!this.state.showNotif){
+        this.setState({showNotif: true});
+      }
+      else{
+        this.setState({showNotif: false});
+      }
+    })
+    .catch( (err) => {
+      console.log(err);
+    })
+  }
+
+  acceptFriend(name, index){
+
+    var data = {name: this.props.name, friendName: name};
+    axios.post('http://localhost:3001/acceptRequest', data)
+    .then( (res) => {
+      var req_icon = this.state.req_icon-1;
+     this.setState({req_icon: req_icon});
+    })
+    .catch( (err) => {
+      console.log(err);
+    })
+  }
+
+  setHistory(e){
+    
+    axios.get("http://localhost:3001/history")
+    .then( (res) => {
+      
+      this.setState({history: res.data.history});
+      console.log(res.data.history);
+
+      if(!this.state.setHistory){
+       
+        this.setState({setHistory: true});
+      }
+      else{
+        this.setState({setHistory: false});
+      }
+
+    })
+    
   }
   
 
@@ -187,21 +295,17 @@ render(){
 	
 	return(
 
-	<div>
-	<br></br>
-	<br></br>
 	 <div>
-	 <div style={{'padding-right': '65px'}} align="right">
 
-	 	<Button color='black' onClick={() => this.setState({visible: true})}>
-	 	<Icon size='chevron left' name='bullhorn' />
+	 <Grid style={{'height': '88vh'}} className='container' columns={1}>
+	  <h1>Welcome, {this.props.name}</h1>
+
+      <Grid.Column style={{'paddingBottom': '100px', 'height': '88vh'}}>
+      <div style={{"font-size": '0'}} align="right">
+     <Button color='black' icon onClick={() => this.setState({visible: true})}>
+	 	<Icon name='chevron left' />
 	 	</Button>
-	 	
-	 </div>
-
-	 <Grid className='container' columns={1}>
-	 
-      <Grid.Column>
+	   </div>
         <Sidebar.Pushable as={Segment}>
         
           <Sidebar
@@ -213,21 +317,51 @@ render(){
             visible={true}
             width='thin'
           >
-            <Menu.Item as='a'>
-              <Icon name='home' />
-             {`D-Points: ${this.state.points}`}
+            <Menu.Item onClick={this.setHistory.bind(this)} as='a'>
+              <Icon name='sitemap' />
+             History
+             {this.state.setHistory && this.state.history &&
+             this.state.history.map( (item) => {
+              
+                return(
+                    <Menu.Item onClick={this.searchFriendChoice.bind(this, item.name)} as='a'>
+                      {item.name} <p style={{'color': '#53e3a6'}}>{item.timestamp}</p>
+                      </Menu.Item>
+                      
+                );
+          
+             })
+             }
             </Menu.Item>
-            <Link to='/history'><Menu.Item as='a'>
-              <Icon name='history' />
-              History
+            <Menu.Item onClick={this.showNotif.bind(this)} as='a'>
+            <div style={{'paddingRight': '30px', 'float': 'right'}}>
+              <p>{this.state.req_icon}</p>
+              </div>
+              <Icon style={{'paddingTop': '10px'}} name='globe' size='big' />
+              <br></br>
+              Notifications
+              {this.state.showNotif && this.state.friendRequest && (
+                this.state.friendRequest.map( (item, key) => {
+                  var name = item;
+                  return(
+                  <Menu.Item as='a'>{item} wants to be your friend!
+                  <Button onClick={this.acceptFriend.bind(this, name, key)}
+                   >Accept</Button>
+                  <Button>Decline</Button>
+                  </Menu.Item>
+                  )
+                })
+              )
+              }
             </Menu.Item>
-            </Link>
+           
          <Menu.Item as='a'>
     	<form onSubmit={this.handleSubmit.bind(this)}>
     	<label>Restaurant Name</label>
     	<input className="sidebar" type="text" value={this.state.term} onChange={this.handleChange2.bind(this)}/>
     	<label>Other Location</label>
-    	<PlacesAutocomplete
+    	
+      <PlacesAutocomplete
         value={this.state.location}
         onChange={this.handleChange}
         onSelect={this.handleChange}
@@ -278,7 +412,7 @@ render(){
          </Sidebar>
 
 
-         <Grid.Column >
+         <Grid.Column>
        
           <Sidebar
             as={Menu}
@@ -298,6 +432,15 @@ render(){
             <Feed searchFriendChoice={this.searchFriendChoice.bind(this)} />
            }
             </Menu.Item>
+            <Menu.Item onClick ={this.addFriend.bind(this)} as='a'>
+              <Icon name='address book outline' />
+            Add Friend
+            </Menu.Item>
+           {this.state.friend &&
+            <Friends name={this.props.name} />
+           }
+           
+            
             </Sidebar>
             </Grid.Column>
 
@@ -317,8 +460,10 @@ render(){
 	 dpoints={this.dpoints}
 	 userFriend={this.state.userFriend}
 	 handleSubmit={this.handleSubmit}
-	 handleSearchArea={this.handleSearchArea}
+	 handleSearchArea={this.handleSearchArea.bind(this)}
 	 name={this.props.name}
+	 reset={this.reset.bind(this)}
+	 updateViewport={this.updateViewport.bind(this)}
 
 	 />
 	 
@@ -333,7 +478,7 @@ render(){
 	
 
 
-	 </div>
+
 	);
 
 }

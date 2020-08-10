@@ -48,17 +48,23 @@ setFriends(e){
 	render(){
 		return(
 	<div>
+  <br></br>
 	<h1>Create Account</h1>
 	<br></br>
 	<form onSubmit={this.createUser.bind(this)}>
-    <label>Name</label>
+  <div style={{'padding-right': '30px'}}>
+    <label>Name</label>&nbsp;
     <input type="text" value={this.props.name} onChange={this.setName.bind(this)} />
-    <label>Email address</label>
+    <br></br>
+    <div style={{'padding-right': '48px'}}>
+    <label>Email address</label>&nbsp;
     <input type="text" value={this.props.email} onChange={this.setEmail.bind(this)} />
-      <label>Password</label>
+    </div>
+    <div style={{'padding-right': '23px'}}>
+    <label>Password</label>&nbsp;
     <input type="password" value={this.props.pass} onChange={this.setPass.bind(this)} />
-    <label>Friends</label>
-    <input type="text" value={this.state.fruebds} onChange={this.setFriends.bind(this)} />
+    </div>
+    </div>
     <input type="submit" value="Submit" />
     </form>
     {this.state.success && <Redirect to='/main'></Redirect>}
