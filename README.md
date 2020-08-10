@@ -1,5 +1,5 @@
 # fooD
-FooD (pun on the word "foodie") is a restaurant + social media ReactJS, Express,and Google Firebase web applicaiton.
+FooD (pun on the word "foodie") is a restaurant + social media ReactJS, Express,and Google Firebase web applicaiton. I started building this at the beginning of the Covid-19 pandemic to see what restuarants in Boston were still delivering food. As time went on I began to have fun with the idea of adding a social aspect to the app, and liked the idea of having a better recorded history of a fun night out.
 
 ## How to build and run the app
 
