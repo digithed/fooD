@@ -29,7 +29,7 @@ To run the front-end React server run `yarn start` while in the root of the clon
 ![](https://github.com/digithed/fooD/blob/master/media/r4.gif)
 
 
-### Look at your own restaurant history and find your favorite spots on the map again
+### Restaurants you like will be broadcasted to your friends as well as saved to your own viewable history. Go and find your favorite spots on the map again
 
 ![](https://github.com/digithed/fooD/blob/master/media/r5.gif)
 
