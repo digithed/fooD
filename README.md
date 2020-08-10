@@ -1,5 +1,5 @@
 # fooD
-Restaurant + social media react app
+FooD (pun on the word "foodie") is a restaurant + social media ReactJS web applicaiton.
 
 ## How to build and run the app
 
@@ -27,6 +27,11 @@ To run the front-end React server run `yarn start` while in the root of the clon
 ### Check out your friend feed and look at new restaurants your friends have liked
 
 ![](https://github.com/digithed/fooD/blob/master/media/r4.gif)
+
+
+### Look at your own restaurant history and find your favorite spots on the map again
+
+![](https://github.com/digithed/fooD/blob/master/media/r5.gif)
 
 
 
