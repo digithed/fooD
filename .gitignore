@@ -1,4 +1,4 @@
 yarn.lock
 .DS_Store
 node_modules/
-src/serviceAccountKey.json
+src/serviceAccountKey.json/
