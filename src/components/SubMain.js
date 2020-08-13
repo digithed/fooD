@@ -62,16 +62,17 @@ state = {
    'setHistory': false,
    'req_icon': 0,
    'stop': false,
+   'errorSearch': false,
 	}
 
 
 componentDidMount(){
 
-	var send = {term: null, location: null, lat: this.props.user_loc[0], long: this.props.user_loc[1], limit: 20};
+	var send = {term: null, location: null, lat: this.props.user_loc[0], long: this.props.user_loc[1], limit: 20, radius: 1000};
 	
 	axios.post('http://localhost:3001/apiCall', send)
 	.then( (res) => {
-		var r = res.data;
+    var r = res.data;
 		this.setState({data: r.data, data2: r.data, isgood: r.isgood, viewport: r.viewport,
      loading: r.isloading, lat: this.props.user_loc[0], long: this.props.user_loc[1]});
      var data = {name: this.props.name};
@@ -101,25 +102,27 @@ handleChange = value => {
 }
 
 handleChange2(e){
-  this.setState({term: e.target.value});
+  this.setState({term: e.target.value, errorSearch: false});
 }
 
 handleFoodSearch(e){
-	this.setState({food_filter: false});
-   var my_data;
-  my_data = this.state.data.filter(biz => {
-  	var i;
-  	for(i=0; i < biz.categories.length; i++){
-  		var item = biz.categories[i].title.toUpperCase()
-  		if(item.includes(e.target.value.toUpperCase())){
-      return biz;
-    }
-  	}
-    
-  
-  });
 
-this.setState({food_type: e.target.value, food_filter:true, data2: my_data});
+  this.setState({food_type: e.target.value});
+
+//    var my_data;
+//   my_data = this.state.data.filter(biz => {
+//   	var i;
+//   	for(i=0; i < biz.categories.length; i++){
+//       var item = biz.categories[i].title.toUpperCase()
+//   		if(item.includes(e.target.value.toUpperCase())){
+//       return biz;
+//     }
+//   	}
+//   });
+
+//   console.log(my_data);
+
+// this.setState({food_type: e.target.value, food_filter: true, data2: my_data});
 
 }
 
@@ -128,18 +131,29 @@ this.setState({food_type: e.target.value, food_filter:true, data2: my_data});
  handleSubmit(e){
  	e.preventDefault();
     this.setState({loading: true});
-  	var send = {term: this.state.term, location: this.state.location, lat: null, long: null, limit: 20};
+    var limit = 20;
+    var data;
+    if(this.state.term != null && this.state.term != ""){
+        limit = 1;
+    }
+  	var send = {term: this.state.term, location: this.state.location, lat: null, long: null, limit: limit, radius: 1000, food_type: this.state.food_type};
   	console.log(send);
 	
 	axios.post('http://localhost:3001/apiCall', send)
 	.then( (res) => {
-		var r = res.data;
+    var r = res.data;
+    if(this.state.term != null && this.state.term != ""){
+      data = r.data.businesses;
+    }
+    else{
+      data = r.data;
+    }
 		console.log(r);
-		this.setState({data: r.data, data2: r.data, isgood: r.isgood, viewport: r.viewport,
+		this.setState({data: data, data2: data, isgood: r.isgood, viewport: r.viewport,
 		 loading: r.isloading});
 	})
 	.catch( (err) => {
-		console.log(err);
+    this.setState({errorSearch: true});
 	})
   }
 
@@ -150,9 +164,11 @@ this.setState({food_type: e.target.value, food_filter:true, data2: my_data});
 
 
   //Function to create timestamp after liking a restaurant and sending data to update history of likes
-  dpoints(id){
-    const date = new Date().toDateString();
-  	const send = {name: this.props.name, id: id, timestamp: date};
+  dpoints(name, id){
+    const date = new Date();
+    var raw_date = date.getTime();
+    console.log(raw_date);
+  	const send = {name: name, id: id, timestamp: date.toDateString(), raw_date: raw_date};
   	axios.post('http://localhost:3001/updateLike', send)
   	.then( (res) => {
   		this.setState({points: this.state.points + 1, setHistory: false});
@@ -173,14 +189,24 @@ this.setState({food_type: e.target.value, food_filter:true, data2: my_data});
   }
   }
 
-  searchFriendChoice(term){
-  var send = {term: term, location: 'Boston, MA', lat: null, long: null, limit: 1};
+  searchFriendChoice(id){
+    console.log(id);
+  var send = {id: id, location: 'Boston, MA', lat: null, long: null, limit: 1};
   axios.post('http://localhost:3001/apiCall', send)
   .then( (res) => {
-    var r = res.data;
+    var r = res.data
     console.log(r);
-      this.setState({data: r.data.businesses, data2: r.data.businesses, isgood: r.isgood, viewport: r.viewport,
-		 loading: r.isloading, userFriend: true});
+    r.data['name'] = r.data['alias'];
+    r.data['alias'] = '';
+    console.log(r.data);
+    var rand = [];
+    rand[0] = r.data;
+    rand.map( (item) => {
+      console.log(item.coordinates);
+    })
+      this.setState({data: rand, isgood: r.isgood, viewport: r.viewport,
+     loading: r.isloading, userFriend: true});
+    console.log(this.state.data);
     
     })
 
@@ -191,13 +217,11 @@ this.setState({food_type: e.target.value, food_filter:true, data2: my_data});
   
  
  handleSearchArea(lat, long){
- 
-  	var send = {term: null, location: null, lat: lat, long: long, limit: 10};
-
+  	var send = {term: null, location: null, lat: lat, long: long, limit: 10, radius: 1000, food_type: this.state.food_type};
+    console.log(send);
 	axios.post('http://localhost:3001/apiCall', send)
 	.then( (res) => {
 		var r = res.data;
-		console.log(r);
 		this.setState({data: r.data, data2: r.data, isgood: r.isgood, viewport: r.viewport,
 		 loading: r.isloading});
 	})
@@ -208,7 +232,7 @@ this.setState({food_type: e.target.value, food_filter:true, data2: my_data});
 
   reset(e){
 
-  	var send = {term: null, location: null, lat: this.state.lat, long: this.state.long, limit: 20};
+  	var send = {term: null, location: null, lat: this.state.lat, long: this.state.long, limit: 20, radius: 1000};
 	
 	axios.post('http://localhost:3001/apiCall', send)
 	.then( (res) => {
@@ -274,8 +298,9 @@ this.setState({food_type: e.target.value, food_filter:true, data2: my_data});
     axios.get("http://localhost:3001/history")
     .then( (res) => {
       
+      res.data.history.sort((a, b) => (a.raw_date > b.raw_date) ? -1: (a < b) ? 1 : 0 );
+  
       this.setState({history: res.data.history});
-      console.log(res.data.history);
 
       if(!this.state.setHistory){
        
@@ -324,7 +349,7 @@ render(){
              this.state.history.map( (item) => {
               
                 return(
-                    <Menu.Item onClick={this.searchFriendChoice.bind(this, item.name)} as='a'>
+                    <Menu.Item onClick={this.searchFriendChoice.bind(this, item.id)} as='a'>
                       {item.name} <p style={{'color': '#53e3a6'}}>{item.timestamp}</p>
                       </Menu.Item>
                       
@@ -359,6 +384,9 @@ render(){
     	<form onSubmit={this.handleSubmit.bind(this)}>
     	<label>Restaurant Name</label>
     	<input className="sidebar" type="text" value={this.state.term} onChange={this.handleChange2.bind(this)}/>
+      {this.state.errorSearch && <p style={{'color': 'red'}}>Restaurant not found! Try Again.</p>}
+      <br></br>
+      <br></br>
     	<label>Other Location</label>
     	
       <PlacesAutocomplete
@@ -403,11 +431,13 @@ render(){
           </div>
         )}
       </PlacesAutocomplete>
+      <br></br>
+      <label>Food Type</label>
+    	<input className="sidebar" type="text" value={this.state.food_type} onChange={this.handleFoodSearch.bind(this)}/>
     	<input type="submit" value="Submit"/>
     	</form>
     	<br></br>
-    	<label>Food Type</label>
-    	<input className="sidebar" type="text" value={this.state.food_type} onChange={this.handleFoodSearch.bind(this)}/>
+    
          </Menu.Item>
          </Sidebar>
 
@@ -449,10 +479,13 @@ render(){
           <Sidebar.Pusher >
             
             {this.state.isgood && (
-	<Search food_type={this.state.food_type}
+  <Search 
+  
+  food_type={this.state.food_type}
+  food_filter={this.state.food_filter}
 	data={this.state.data}
 	key={this.state.data}
-	data2={this.state.data2}
+	data2={this.state.data}
 	isgood={this.state.isgood}
 	viewport={this.state.viewport}
 	recurse={this.props.reset} user_lat={this.props.user_loc[0]}

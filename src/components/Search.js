@@ -46,7 +46,8 @@ class Search extends React.Component<{},{ viewport: Viewport },> {
 
   }
   componentDidMount(){
-  	this.setState({data: this.props.data, data2: this.props.data});
+    console.log(this.props.viewport);
+  	this.setState({data: this.props.data, data2: this.props.data2});
   }
 
 
@@ -79,6 +80,33 @@ set(e){
   
 }
 
+// {this.props.food_type && this.props.data2.map((b) => (
+//   <Marker key={b.id}
+//   position={[b.coordinates.latitude, b.coordinates.longitude]}
+//    >
+//    <Popup onClick={this.setPopup} 
+//    position={[b.coordinates.latitude, b.coordinates.longitude]} >
+//     <div>
+//   <h2>{b.name}</h2>
+//   <img src={b.image_url} height="150px" width="200px"/>
+//   <p>Rating: {b.rating}</p>
+//    <p>Known for:</p>
+//   <ul>
+//   {b.categories.map((i) => (
+//    <li>{i.title}</li>
+// ))}
+//    </ul>
+//   <p><a href={b.url}>Yelp Page</a></p>
+//   <p>Phone: <a href={"tel:" + b.phone}>{b.phone}</a></p> 
+
+//   </div>
+//   </Popup>
+    
+
+//   </Marker>))
+
+//   }
+
 
 	render() {
 		return (
@@ -86,7 +114,6 @@ set(e){
 
     {this.props.isgood && (
     <Map
-    ref = "map"
     onViewportChanged={this.updateViewport.bind(this)}
     viewport = {this.props.viewport}
     useFlyTo={true}
@@ -110,33 +137,8 @@ set(e){
     </Control>
 
 
-    
-        {this.props.food_type && this.state.data2.map((b) => (
-          <Marker key={b.id}
-      position={[b.coordinates.latitude, b.coordinates.longitude]}
-       >
-       <Popup onClick={this.setPopup} 
-       position={[b.coordinates.latitude, b.coordinates.longitude]} >
-        <div>
-      <h2>{b.name}</h2>
-      <img src={b.image_url} height="150px" width="200px"/>
-      <p>Rating: {b.rating}</p>
-       <p>Known for:</p>
-      <ul>
-      {b.categories.map((i) => (
-     	<li>{i.title}</li>
-  ))}
-   		</ul>
-      <p><a href={b.url}>Yelp Page</a></p>
-      <p>Phone: <a href={"tel:" + b.phone}>{b.phone}</a></p> 
-
-      </div>
-      </Popup>
-        
   
-      </Marker>))
-    ||
-     this.props.data.map((b) => (
+     {this.props.data.map((b) => (
       <Marker key={b.id}
       position={[b.coordinates.latitude, b.coordinates.longitude]}
        >
@@ -148,7 +150,7 @@ set(e){
       <p>Rating: {b.rating}</p>
 
 
-      <Button onClick={this.props.dpoints.bind(this, b.name)} as='div' labelPosition='right'>
+      <Button onClick={this.props.dpoints.bind(this, b.name, b.id)} as='div' labelPosition='right'>
       <Button icon>
         <Icon name='heart' />
         Like

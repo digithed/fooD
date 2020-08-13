@@ -28,7 +28,34 @@ app.use(function(req, res, next) {
  app.post("/apiCall", (req, response) => {
  	var location = req.body.location;
  	var lat = req.body.lat;
- 	var long = req.body.long;
+   var long = req.body.long;
+   var food_type;
+
+   if(req.body.id){
+    axios.get(`https://api.yelp.com/v3/businesses/${req.body.id}`, {
+      headers: {
+        Authorization: 'Bearer ' + 'BDKJluIkcQa-Lwn_Ye9BfW_m8ajO-agWP-WXdpyAMJ3O6iAhangiPCn8Sjch8MF2mikafe4gxR1xxM0h69cCAYBuFlTn0tOvHc2vpiogz3TAHkaRGDeZVRXf46i9XnYx'
+     }
+
+  })
+  .then( (res) => {
+
+    var json = {data: res.data, isgood: true, viewport:{center: [res.data.coordinates.latitude,res.data.coordinates.longitude], zoom:16}, isloading:false};
+      return response.send(json);
+
+  })
+  .catch( (err) => {
+    console.log(err);
+  })
+}
+else{
+
+   if(req.body.food_type){
+    food_type = req.body.food_type.replace(/\s/g, '');
+   }
+   else{
+     food_type = null;
+   }
 
  	axios.get('https://api.yelp.com/v3/businesses/search', {
      params: {
@@ -37,13 +64,15 @@ app.use(function(req, res, next) {
       latitude: lat,
       longitude: long,
       limit: req.body.limit,
+      radius: req.body.radius,
+      categories: food_type
      },
      headers: {
     Authorization: 'Bearer ' + 'BDKJluIkcQa-Lwn_Ye9BfW_m8ajO-agWP-WXdpyAMJ3O6iAhangiPCn8Sjch8MF2mikafe4gxR1xxM0h69cCAYBuFlTn0tOvHc2vpiogz3TAHkaRGDeZVRXf46i9XnYx'
  }
     })
     .then( res => {
-      
+   
       if(lat == null && long == null){
   		lat = res.data.businesses[0].coordinates.latitude;
   		long = res.data.businesses[0].coordinates.longitude;
@@ -64,7 +93,7 @@ app.use(function(req, res, next) {
     }
 
        
-    var json = {data: res.data, isgood: true, viewport:{center: [lat,long], zoom:15}, isloading:false};
+    var json = {data: res.data, isgood: true, viewport:{center: [lat,long], zoom:16}, isloading:false};
      
       return response.send(json);
       
@@ -72,9 +101,11 @@ app.use(function(req, res, next) {
     })
     .catch( err => {
       console.log('err');
+      return response.send({error: true});
+      
     })
 
-
+  }
 });
 
 
@@ -106,7 +137,7 @@ app.post("/updateLike", (req, res) => {
     if(snapshot.child("ids").exists()){
       
       reference = snapshot.val();
-      var obj = {timestamp: req.body.timestamp, name: req.body.id};
+      var obj = {timestamp: req.body.timestamp, raw_date: req.body.raw_date, name: req.body.name, id: req.body.id};
       reference.ids.push(obj);
       mydata = reference.ids;
       innerRef.update({
@@ -116,8 +147,7 @@ app.post("/updateLike", (req, res) => {
    }
 
    else if(!snapshot.child("ids").exists()){
-    mydata = [req.body.id];
-      var obj = {timestamp: req.body.timestamp, name: req.body.id};
+      var obj = {timestamp: req.body.timestamp, raw_date: req.body.raw_date, name: req.body.name, id: req.body.id};
       var reference = [];
       reference.push(obj);
       mydata = reference;
