@@ -109,21 +109,6 @@ handleFoodSearch(e){
 
   this.setState({food_type: e.target.value});
 
-//    var my_data;
-//   my_data = this.state.data.filter(biz => {
-//   	var i;
-//   	for(i=0; i < biz.categories.length; i++){
-//       var item = biz.categories[i].title.toUpperCase()
-//   		if(item.includes(e.target.value.toUpperCase())){
-//       return biz;
-//     }
-//   	}
-//   });
-
-//   console.log(my_data);
-
-// this.setState({food_type: e.target.value, food_filter: true, data2: my_data});
-
 }
 
 
@@ -135,6 +120,9 @@ handleFoodSearch(e){
     var data;
     if(this.state.term != null && this.state.term != ""){
         limit = 1;
+    }
+    if(this.state.food_type == ""){
+      this.setState({food_type: null});
     }
   	var send = {term: this.state.term, location: this.state.location, lat: null, long: null, limit: limit, radius: 1000, food_type: this.state.food_type};
   	console.log(send);
@@ -218,7 +206,6 @@ handleFoodSearch(e){
  
  handleSearchArea(lat, long){
   	var send = {term: null, location: null, lat: lat, long: long, limit: 10, radius: 1000, food_type: this.state.food_type};
-    console.log(send);
 	axios.post('http://localhost:3001/apiCall', send)
 	.then( (res) => {
 		var r = res.data;

@@ -1,6 +1,11 @@
 const express = require('express');
 const axios = require('axios');
 const app = express();
+var firebase = require('firebase/app');
+require("firebase/auth");
+require("firebase/firestore");
+const {OAuth2Client} = require('google-auth-library');
+
 const admin = require('firebase-admin');
 const serviceAccount = require("./serviceAccountKey.json");
 
@@ -11,6 +16,33 @@ admin.initializeApp({
 });
 
 var db = admin.database();
+// var firebase = require('firebase/app');
+// require('firebase/auth');
+// require('firebase/firestore');
+// var firebaseConfig = {
+//   apiKey: "AIzaSyBh9qshjRgVZnNxQFw9hmopVFDPg99o1WM",
+//   authDomain: "quickdeliver-d9180.firebaseapp.com",
+//   databaseURL: "https://quickdeliver-d9180.firebaseio.com",
+//   projectId: "quickdeliver-d9180",
+//   storageBucket: "quickdeliver-d9180.appspot.com",
+//   messagingSenderId: "614452253270",
+//   appId: "1:614452253270:web:0705184cd3bb57f8e121f7",
+//   measurementId: "G-WXQ28FTW1D"
+// };
+// firebase.initializeApp(firebaseConfig);
+// db = firebase.firestore();
+// var provider = new firebase.auth.GoogleAuthProvider();
+// firebase.auth().signInWithPopup(provider)
+// .then( (res) => {
+//   var apikey = res.credential.accessToken;
+
+// })
+// .catch( (err) => {
+//    console.log('poop');
+//   console.log(err.code);
+//   console.log(err.message);
+// })
+
 var ref = db.ref("server/signUp");
 
 app.use(express.json());
@@ -68,18 +100,20 @@ else{
       categories: food_type
      },
      headers: {
-    Authorization: 'Bearer ' + 'INSERT YELP FUSION API KEY HERE'
+    Authorization: 'Bearer ' + 'BDKJluIkcQa-Lwn_Ye9BfW_m8ajO-agWP-WXdpyAMJ3O6iAhangiPCn8Sjch8MF2mikafe4gxR1xxM0h69cCAYBuFlTn0tOvHc2vpiogz3TAHkaRGDeZVRXf46i9XnYx'
  }
     })
     .then( res => {
-   
-      if(lat == null && long == null){
+      if(lat == null && long == null && res.data.businesses.length > 0){
   		lat = res.data.businesses[0].coordinates.latitude;
   		long = res.data.businesses[0].coordinates.longitude;
     }
 
+    if(res.data.businesses <= 0){
+      lat = res.data.region.center.latitude;
+      long = res.data.region.center.longitude;
+    }
 
-      
 
       if(req.body.limit > 1){
       res.data = res.data.businesses.filter((biz) => {
@@ -93,14 +127,17 @@ else{
     }
 
        
-    var json = {data: res.data, isgood: true, viewport:{center: [lat,long], zoom:16}, isloading:false};
-     
-      return response.send(json);
+    var json = {data: res.data, isgood: true, viewport:{center: [lat,long], zoom:15}, isloading:false};
+    
+    console.log(json);
+
+    return response.send(json);
       
     
     })
     .catch( err => {
-      console.log('err');
+     
+      console.log(err);
       return response.send({error: true});
       
     })
@@ -161,6 +198,53 @@ app.post("/updateLike", (req, res) => {
 });
 
 });
+
+app.post("/googleLogin", (req, res) => {
+  console.log("google ok");
+  const client = new OAuth2Client("1084699443589-e8avah9a0arieubsju4jk78f08v0t9gq.apps.googleusercontent.com");
+  async function verify() {
+    const ticket = await client.verifyIdToken({
+        idToken: req.body.token,
+        audience: "1084699443589-e8avah9a0arieubsju4jk78f08v0t9gq.apps.googleusercontent.com",  // Specify the CLIENT_ID of the app that accesses the backend
+        // Or, if multiple clients access the backend:
+        //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+    });
+    const payload = ticket.getPayload();
+    const userid = payload['sub'];
+    // If request specified a G Suite domain:
+    // const domain = payload['hd'];
+  }
+  verify()
+  .then( () => {
+  var usersRef = ref.child("users");
+   var success = false;
+   var name;
+ 	usersRef.once('value', (snapshot) => {
+ 		snapshot.forEach( (child) => {
+ 			if(child.val().email == req.body.email){
+ 				currentSession = child.key;
+         success = true;
+         name = child.val().name;
+       }
+       
+
+     });
+
+     if(!success){
+      usersRef.push({
+        name: req.body.name,
+        email: req.body.email,
+     });
+    }
+    else{
+     res.send({success: success, name: req.body.name});
+    }
+  })
+})
+  .catch(console.error);
+
+});
+
 
  app.post("/login", (req, res) => {
 

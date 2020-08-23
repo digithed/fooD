@@ -11,6 +11,7 @@ import {
   Redirect
 } from "react-router-dom";
 import axios from 'axios';
+import GoogleLogin from 'react-google-login';
 
 
 class Login extends React.Component  {
@@ -48,8 +49,19 @@ setPass(e) {
   this.setState({pass: e.target.value})
 }
 
-
-
+onSignIn(googleUser) {
+  var profile = googleUser.getBasicProfile();
+  var id_token = googleUser.getAuthResponse().id_token;
+  var data = {token: id_token, email: profile.getEmail(), name: profile.getName()};
+  console.log(data);
+  axios.post("http://localhost:3001/googleLogin", data)
+  .then( (res) => {
+    this.setState({success: res.data.success, name: res.data.name});
+  })
+  .catch( (err) => {
+    console.log(err);
+  })
+}
 
   render(){
   return( 
@@ -71,12 +83,13 @@ setPass(e) {
     <input type="submit" value="Login" />
     </form>
     <br></br>
-    {this.state.success == false &&
-    <div>
-    <h3 style={{'color': 'red'}}>User not found! Try again or create account</h3>
-    </div>
-  }
-    <Link to="/createAccount">Create Account</Link>
+    <GoogleLogin
+      clientId = "1084699443589-e8avah9a0arieubsju4jk78f08v0t9gq.apps.googleusercontent.com"
+      buttonText = "Sign in with Google"
+      onSuccess={this.onSignIn.bind(this)}
+       />
+       <br></br>
+    
     </div>
 }
     {this.state.success && 

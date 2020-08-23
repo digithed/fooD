@@ -16,8 +16,8 @@ class Search extends React.Component<{},{ viewport: Viewport },> {
     super(props);
      this.updateViewport.bind(this);
     this.set.bind(this);
-    this.Lat = 0;
-    this.Long = 0;
+    this.Lat = this.props.user_lat;
+    this.Long = this.props.user_long;
     this.ready = false;
    
     
