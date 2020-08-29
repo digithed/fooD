@@ -1,6 +1,8 @@
 # fooD
 FooD (pun on the word "foodie") is a restaurant + social media ReactJS, Express,and Google Firebase web applicaiton. I started building this at the beginning of the Covid-19 pandemic to see what restuarants in Boston were still delivering food. As time went on I began to have fun with the idea of adding a social aspect to the app, and liked the idea of having a better recorded history of a fun night out.
 
+Medium article part 1: [Building a social media infused restaurant web app with React, Node.js, and Google Firebase. Part 1](https://medium.com/@nick.rosenau1/building-a-social-media-infused-restaurant-web-app-with-react-node-js-and-google-firebase-part-1-d2f34ed3a3fa)
+
 ## How to build and run the app
 
 Install yarn and node if you don't have them already with `brew install yarn` and `brew install node`.
